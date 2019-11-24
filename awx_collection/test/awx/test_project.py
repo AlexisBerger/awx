@@ -1,6 +1,3 @@
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
-
 import pytest
 
 from awx.main.models import Project
@@ -12,8 +9,7 @@ def test_create_project(run_module, admin_user, organization):
         name='foo',
         organization=organization.name,
         scm_type='git',
-        scm_url='https://foo.invalid',
-        wait=False
+        scm_url='https://foo.invalid'
     ), admin_user)
     assert result.pop('changed', None), result
 

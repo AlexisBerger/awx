@@ -9,8 +9,6 @@ import { JobTemplate } from '@types';
 import { getAddedAndRemoved } from '@util/lists';
 import JobTemplateForm from '../shared/JobTemplateForm';
 
-const loadRelatedProjectPlaybooks = async project =>
-  ProjectsAPI.readPlaybooks(project);
 class JobTemplateEdit extends Component {
   static propTypes = {
     template: JobTemplate.isRequired,
@@ -35,6 +33,9 @@ class JobTemplateEdit extends Component {
     this.handleCancel = this.handleCancel.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.loadRelatedCredentials = this.loadRelatedCredentials.bind(this);
+    this.loadRelatedProjectPlaybooks = this.loadRelatedProjectPlaybooks.bind(
+      this
+    );
     this.submitLabels = this.submitLabels.bind(this);
   }
 
@@ -43,20 +44,15 @@ class JobTemplateEdit extends Component {
   }
 
   async loadRelated() {
-    const {
-      template: { project },
-    } = this.props;
     this.setState({ contentError: null, hasContentLoading: true });
     try {
-      if (project) {
-        const { data: playbook = [] } = await loadRelatedProjectPlaybooks(
-          project
-        );
-        this.setState({ relatedProjectPlaybooks: playbook });
-      }
-      const [relatedCredentials] = await this.loadRelatedCredentials();
+      const [relatedCredentials, relatedProjectPlaybooks] = await Promise.all([
+        this.loadRelatedCredentials(),
+        this.loadRelatedProjectPlaybooks(),
+      ]);
       this.setState({
         relatedCredentials,
+        relatedProjectPlaybooks,
       });
     } catch (contentError) {
       this.setState({ contentError });
@@ -90,6 +86,19 @@ class JobTemplateEdit extends Component {
       } = this.props;
 
       return credentials;
+    }
+  }
+
+  async loadRelatedProjectPlaybooks() {
+    const {
+      template: { project },
+    } = this.props;
+    try {
+      const { data: playbooks = [] } = await ProjectsAPI.readPlaybooks(project);
+      this.setState({ relatedProjectPlaybooks: playbooks });
+      return playbooks;
+    } catch (err) {
+      throw err;
     }
   }
 

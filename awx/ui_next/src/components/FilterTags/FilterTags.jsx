@@ -5,7 +5,7 @@ import { t } from '@lingui/macro';
 import styled from 'styled-components';
 import { Button } from '@patternfly/react-core';
 import { parseQueryString } from '@util/qs';
-import { ChipGroup as _ChipGroup, Chip } from '@components/Chip';
+import { ChipGroup, Chip } from '@components/Chip';
 import VerticalSeparator from '@components/VerticalSeparator';
 
 const FilterTagsRow = styled.div`
@@ -22,12 +22,6 @@ const ResultCount = styled.span`
 
 const FilterLabel = styled.span`
   padding-right: 20px;
-`;
-
-const ChipGroup = styled(_ChipGroup)`
-  li.pf-m-overflow {
-    display: none;
-  }
 `;
 
 // remove non-default query params so they don't show up as filter tags
@@ -72,7 +66,7 @@ const FilterTags = ({
         <ResultCount>{i18n._(t`${itemCount} results`)}</ResultCount>
         <VerticalSeparator />
         <FilterLabel>{i18n._(t`Active Filters:`)}</FilterLabel>
-        <ChipGroup defaultIsOpen>
+        <ChipGroup>
           {queryParamsArr.map(({ key, label, value }) => (
             <Chip
               className="searchTagChip"

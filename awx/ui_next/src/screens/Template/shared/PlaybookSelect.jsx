@@ -39,7 +39,7 @@ function PlaybookSelect({
         onError(contentError);
       }
     })();
-  }, [projectId, i18n, onError]);
+  }, [projectId]);
 
   return (
     <AnsibleSelect

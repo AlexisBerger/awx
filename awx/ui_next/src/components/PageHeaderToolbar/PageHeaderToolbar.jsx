@@ -117,7 +117,6 @@ class PageHeaderToolbar extends Component {
                     key="logout"
                     component="button"
                     onClick={onLogoutClick}
-                    id="logout-button"
                   >
                     {i18n._(t`Logout`)}
                   </DropdownItem>,

@@ -32,8 +32,7 @@ function InstanceGroupsStrings(BaseString) {
     ns.tooltips = {
         ADD_INSTANCE_GROUP: t.s('Create a new Instance Group'),
         ASSOCIATE_INSTANCES: t.s('Associate an existing Instance'),
-        IG_DOCS_HELP_TEXT: t.s('Instance Groups Help'),
-        CG_DOCS_HELP_TEXT: t.s('Container Groups Help')
+        DOCS_HELP_TEXT: t.s('Instance Groups Help')
     };
 
     ns.instance = {

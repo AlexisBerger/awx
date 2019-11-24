@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 from awx.main.migrations import ActivityStreamDisabledMigration
+from awx.main.migrations import _reencrypt as reencrypt
+from awx.main.migrations import _migration_utils as migration_utils
 
 
 class Migration(ActivityStreamDisabledMigration):
@@ -12,8 +14,6 @@ class Migration(ActivityStreamDisabledMigration):
     ]
 
     operations = [
-        # This list is intentionally empty.
-        # Tower 3.2 included several data migrations that are no longer
-        # necessary (this list is now empty because Tower 3.2 is past EOL and
-        # cannot be directly upgraded to modern versions of Tower)
+        migrations.RunPython(migration_utils.set_current_apps_for_migrations),
+        migrations.RunPython(reencrypt.encrypt_survey_passwords),
     ]

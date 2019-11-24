@@ -36,7 +36,7 @@ options:
       description:
         - The job type to use for the job template.
       required: True
-      choices: ["run", "check"]
+      choices: ["run", "check", "scan"]
       type: str
     inventory:
       description:
@@ -55,20 +55,11 @@ options:
     credential:
       description:
         - Name of the credential to use for the job template.
-        - Deprecated, mutually exclusive with 'credentials'.
       version_added: 2.7
       type: str
-    credentials:
-      description:
-        - List of credentials to use for the job template.
-        - Will not remove any existing credentials. This may change in the future.
-      version_added: 2.8
-      type: list
-      default: []
     vault_credential:
       description:
         - Name of the vault credential to use for the job template.
-        - Deprecated, mutually exclusive with 'credential'.
       version_added: 2.7
       type: str
     forks:
@@ -200,13 +191,6 @@ options:
       description:
         - Maximum time in seconds to wait for a job to finish (server-side).
       type: int
-    custom_virtualenv:
-      version_added: "2.9"
-      description:
-        - Local absolute file path containing a custom Python virtualenv to use.
-      type: str
-      required: False
-      default: ''
     state:
       description:
         - Desired state of the resource.
@@ -234,7 +218,6 @@ EXAMPLES = '''
     tower_config_file: "~/tower_cli.cfg"
     survey_enabled: yes
     survey_spec: "{{ lookup('file', 'my_survey.json') }}"
-    custom_virtualenv: "/var/lib/awx/venv/custom-venv/"
 '''
 
 from ..module_utils.ansible_tower import TowerModule, tower_auth_config, tower_check_mode
@@ -309,14 +292,12 @@ def main():
     argument_spec = dict(
         name=dict(required=True),
         description=dict(default=''),
-        job_type=dict(choices=['run', 'check']),
+        job_type=dict(choices=['run', 'check', 'scan'], required=True),
         inventory=dict(default=''),
         project=dict(required=True),
         playbook=dict(required=True),
         credential=dict(default=''),
         vault_credential=dict(default=''),
-        custom_virtualenv=dict(type='str', required=False),
-        credentials=dict(type='list', default=[]),
         forks=dict(type='int'),
         limit=dict(default=''),
         verbosity=dict(type='int', choices=[0, 1, 2, 3, 4], default=0),
@@ -345,14 +326,7 @@ def main():
         state=dict(choices=['present', 'absent'], default='present'),
     )
 
-    module = TowerModule(
-        argument_spec=argument_spec,
-        supports_check_mode=True,
-        mutually_exclusive=[
-            ('credential', 'credentials'),
-            ('vault_credential', 'credentials')
-        ]
-    )
+    module = TowerModule(argument_spec=argument_spec, supports_check_mode=True)
 
     name = module.params.get('name')
     state = module.params.pop('state')
@@ -375,18 +349,6 @@ def main():
                 result = jt.delete(**params)
         except (exc.ConnectionError, exc.BadRequest, exc.NotFound, exc.AuthError) as excinfo:
             module.fail_json(msg='Failed to update job template: {0}'.format(excinfo), changed=False)
-
-        cred_list = module.params.get('credentials')
-        if cred_list:
-            cred = tower_cli.get_resource('credential')
-            for cred_name in cred_list:
-                try:
-                    cred_id = cred.get(name=cred_name)['id']
-                    r = jt.associate_credential(result['id'], cred_id)
-                except (exc.ConnectionError, exc.BadRequest, exc.NotFound, exc.AuthError) as excinfo:
-                    module.fail_json(msg='Failed to add credential to job template: {0}'.format(excinfo), changed=False)
-                if r.get('changed'):
-                    result['changed'] = True
 
     json_output['changed'] = result['changed']
     module.exit_json(**json_output)

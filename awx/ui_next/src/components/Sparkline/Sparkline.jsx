@@ -6,7 +6,6 @@ import { StatusIcon } from '@components/Sparkline';
 import { Tooltip } from '@patternfly/react-core';
 import styled from 'styled-components';
 import { t } from '@lingui/macro';
-import { formatDateString } from '@util/dates';
 import { JOB_TYPE_URL_SEGMENTS } from '../../constants';
 
 /* eslint-disable react/jsx-pascal-case */
@@ -26,7 +25,7 @@ const Sparkline = ({ i18n, jobs }) => {
       </div>
       {job.finished && (
         <div>
-          {i18n._(t`FINISHED:`)} {formatDateString(job.finished)}
+          {i18n._(t`FINISHED:`)} {job.finished}
         </div>
       )}
     </Fragment>

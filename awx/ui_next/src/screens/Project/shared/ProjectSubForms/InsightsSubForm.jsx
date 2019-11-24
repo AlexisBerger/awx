@@ -8,8 +8,8 @@ import { ScmTypeOptions } from './SharedFields';
 
 const InsightsSubForm = ({
   i18n,
-  credential,
-  onCredentialSelection,
+  setInsightsCredential,
+  insightsCredential,
   scmUpdateOnLaunch,
 }) => (
   <>
@@ -18,16 +18,19 @@ const InsightsSubForm = ({
       validate={required(i18n._(t`Select a value for this field`), i18n)}
       render={({ form }) => (
         <CredentialLookup
-          credentialTypeId={credential.typeId}
+          credentialTypeId={insightsCredential.typeId}
           label={i18n._(t`Insights Credential`)}
           helperTextInvalid={form.errors.credential}
           isValid={!form.touched.credential || !form.errors.credential}
           onBlur={() => form.setFieldTouched('credential')}
-          onChange={value => {
-            onCredentialSelection('insights', value);
-            form.setFieldValue('credential', value.id);
+          onChange={credential => {
+            form.setFieldValue('credential', credential.id);
+            setInsightsCredential({
+              ...insightsCredential,
+              value: credential,
+            });
           }}
-          value={credential.value}
+          value={insightsCredential.value}
           required
         />
       )}

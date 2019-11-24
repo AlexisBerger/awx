@@ -44,10 +44,6 @@ const mockJobTemplate = {
       { id: 1, kind: 'cloud', name: 'Foo' },
       { id: 2, kind: 'ssh', name: 'Bar' },
     ],
-    project: {
-      id: 15,
-      name: 'Boo',
-    },
   },
 };
 
@@ -200,22 +196,17 @@ describe('<JobTemplateEdit />', () => {
       data: { ...updatedTemplateData },
     });
     const formik = wrapper.find('Formik').instance();
-    const changeState = await act(
-      () =>
-        new Promise(resolve => {
-          const values = {
-            ...mockJobTemplate,
-            ...updatedTemplateData,
-            labels,
-            instanceGroups: [],
-          };
-          formik.setState({ values }, () => resolve());
-        })
-    );
-    await changeState;
-    await act(async () => {
-      wrapper.find('button[aria-label="Save"]').simulate('click');
+    const changeState = new Promise(resolve => {
+      const values = {
+        ...mockJobTemplate,
+        ...updatedTemplateData,
+        labels,
+        instanceGroups: [],
+      };
+      formik.setState({ values }, () => resolve());
     });
+    await changeState;
+    wrapper.find('button[aria-label="Save"]').simulate('click');
     await sleep(0);
 
     expect(JobTemplatesAPI.update).toHaveBeenCalledWith(1, {
@@ -241,57 +232,9 @@ describe('<JobTemplateEdit />', () => {
       'button[aria-label="Cancel"]',
       e => e.length === 1
     );
-    await act(async () => {
-      cancelButton.prop('onClick')();
-    });
+    cancelButton.prop('onClick')();
     expect(history.location.pathname).toEqual(
       '/templates/job_template/1/details'
     );
-  });
-  test('should not call ProjectsAPI.readPlaybooks if there is no project', async () => {
-    const history = createMemoryHistory({});
-    const noProjectTemplate = {
-      id: 1,
-      name: 'Foo',
-      description: 'Bar',
-      job_type: 'run',
-      inventory: 2,
-      playbook: 'Baz',
-      type: 'job_template',
-      forks: 0,
-      limit: '',
-      verbosity: '0',
-      job_slice_count: 1,
-      timeout: 0,
-      job_tags: '',
-      skip_tags: '',
-      diff_mode: false,
-      allow_callbacks: false,
-      allow_simultaneous: false,
-      use_fact_cache: false,
-      host_config_key: '',
-      summary_fields: {
-        user_capabilities: {
-          edit: true,
-        },
-        labels: {
-          results: [{ name: 'Sushi', id: 1 }, { name: 'Major', id: 2 }],
-        },
-        inventory: {
-          id: 2,
-          organization_id: 1,
-        },
-        credentials: [
-          { id: 1, kind: 'cloud', name: 'Foo' },
-          { id: 2, kind: 'ssh', name: 'Bar' },
-        ],
-      },
-    };
-    await act(async () =>
-      mountWithContexts(<JobTemplateEdit template={noProjectTemplate} />, {
-        context: { router: { history } },
-      })
-    );
-    expect(ProjectsAPI.readPlaybooks).not.toBeCalled();
   });
 });

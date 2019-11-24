@@ -258,24 +258,19 @@ class TaskManager():
                 for group in InstanceGroup.objects.all():
                     if group.is_containerized or group.controller_id:
                         continue
-                    match = group.fit_task_to_most_remaining_capacity_instance(task)
+                    match = group.find_largest_idle_instance()
                     if match:
                         break
                 task.instance_group = rampart_group
-                if match is None:
-                    logger.warn(
-                        'No available capacity to run containerized <{}>.'.format(task.log_format)
-                    )
+                if task.supports_isolation():
+                    task.controller_node = match.hostname
                 else:
-                    if task.supports_isolation():
-                        task.controller_node = match.hostname
-                    else:
-                        # project updates and inventory updates don't *actually* run in pods,
-                        # so just pick *any* non-isolated, non-containerized host and use it
-                        # as the execution node
-                        task.execution_node = match.hostname
-                        logger.debug('Submitting containerized {} to queue {}.'.format(
-                                     task.log_format, task.execution_node))
+                    # project updates and inventory updates don't *actually* run in pods,
+                    # so just pick *any* non-isolated, non-containerized host and use it
+                    # as the execution node
+                    task.execution_node = match.hostname
+                    logger.debug('Submitting containerized {} to queue {}.'.format(
+                                 task.log_format, task.execution_node))
             else:
                 task.instance_group = rampart_group
                 if instance is not None:

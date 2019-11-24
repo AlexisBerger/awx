@@ -41,17 +41,20 @@ export const BranchFormField = withI18n()(({ i18n, label }) => (
 ));
 
 export const ScmCredentialFormField = withI18n()(
-  ({ i18n, credential, onCredentialSelection }) => (
+  ({ i18n, setScmCredential, scmCredential }) => (
     <Field
       name="credential"
       render={({ form }) => (
         <CredentialLookup
-          credentialTypeId={credential.typeId}
+          credentialTypeId={scmCredential.typeId}
           label={i18n._(t`SCM Credential`)}
-          value={credential.value}
-          onChange={value => {
-            onCredentialSelection('scm', value);
-            form.setFieldValue('credential', value.id);
+          value={scmCredential.value}
+          onChange={credential => {
+            form.setFieldValue('credential', credential.id);
+            setScmCredential({
+              ...scmCredential,
+              value: credential,
+            });
           }}
         />
       )}

@@ -88,9 +88,6 @@ class TestJobNotificationMixin(object):
                                  'verbosity': int},
                          'job_friendly_name': str,
                          'job_metadata': str,
-                         'approval_status': str,
-                         'approval_node_name': str,
-                         'workflow_url': str,
                          'url': str}
 
 

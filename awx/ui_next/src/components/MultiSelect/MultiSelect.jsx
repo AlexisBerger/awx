@@ -206,7 +206,7 @@ class MultiSelect extends Component {
             />
           </div>
           <div css="margin: 10px">
-            <ChipGroup defaultIsOpen numChips={5}>
+            <ChipGroup>
               {value.map(item => (
                 <Chip
                   key={item.id}

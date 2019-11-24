@@ -23,6 +23,7 @@ class SelectedList extends Component {
     const {
       label,
       selected,
+      showOverflowAfter,
       onRemove,
       displayKey,
       isReadOnly,
@@ -53,7 +54,7 @@ class SelectedList extends Component {
         <SplitLabelItem>{label}</SplitLabelItem>
         <VerticalSeparator />
         <SplitItem>
-          <ChipGroup numChips={5}>{chips}</ChipGroup>
+          <ChipGroup showOverflowAfter={showOverflowAfter}>{chips}</ChipGroup>
         </SplitItem>
       </Split>
     );
@@ -65,6 +66,7 @@ SelectedList.propTypes = {
   label: PropTypes.string,
   onRemove: PropTypes.func,
   selected: PropTypes.arrayOf(PropTypes.object).isRequired,
+  showOverflowAfter: PropTypes.number,
   isReadOnly: PropTypes.bool,
 };
 
@@ -72,6 +74,7 @@ SelectedList.defaultProps = {
   displayKey: 'name',
   label: 'Selected',
   onRemove: () => null,
+  showOverflowAfter: 5,
   isReadOnly: false,
 };
 

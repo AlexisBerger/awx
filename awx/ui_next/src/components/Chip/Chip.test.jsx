@@ -5,6 +5,6 @@ import Chip from './Chip';
 describe('Chip', () => {
   test('renders the expected content', () => {
     const wrapper = mount(<Chip />);
-    expect(wrapper).toMatchSnapshot();
+    expect(wrapper).toHaveLength(1);
   });
 });

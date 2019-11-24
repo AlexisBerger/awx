@@ -135,7 +135,7 @@ services:
 
   {% if pg_hostname is not defined %}
   postgres:
-    image: {{ postgresql_image }}
+    image: postgres:10
     container_name: awx_postgres
     restart: unless-stopped
     volumes:

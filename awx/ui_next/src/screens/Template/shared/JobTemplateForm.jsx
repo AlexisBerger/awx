@@ -572,9 +572,7 @@ const FormikApp = withFormik({
         inventory: { organization: null },
       },
     } = template;
-    const hasInventory = summary_fields.inventory
-      ? summary_fields.inventory.organization_id
-      : null;
+
     return {
       name: template.name || '',
       description: template.description || '',
@@ -596,7 +594,7 @@ const FormikApp = withFormik({
       allow_simultaneous: template.allow_simultaneous || false,
       use_fact_cache: template.use_fact_cache || false,
       host_config_key: template.host_config_key || '',
-      organizationId: hasInventory,
+      organizationId: summary_fields.inventory.organization_id || null,
       initialInstanceGroups: [],
       instanceGroups: [],
       credentials: summary_fields.credentials || [],

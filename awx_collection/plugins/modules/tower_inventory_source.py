@@ -37,10 +37,6 @@ options:
         - The inventory the source is linked to.
       required: True
       type: str
-    organization:
-      description:
-        - Organization the inventory belongs to.
-      type: str
     source:
       description:
         - Types of inventory source.
@@ -72,12 +68,6 @@ options:
           change the output of the openstack.py script. It has to be YAML or
           JSON.
       type: str
-    custom_virtualenv:
-      version_added: "2.9"
-      description:
-        - Local absolute file path containing a custom Python virtualenv to use.
-      type: str
-      required: False
     timeout:
       description:
         - Number in seconds after which the Tower API methods will time out.
@@ -173,7 +163,6 @@ EXAMPLES = '''
     name: Inventory source
     description: My Inventory source
     inventory: My inventory
-    organization: My organization
     credential: Devstack_credential
     source: openstack
     update_on_launch: true
@@ -233,10 +222,8 @@ def main():
         source_script=dict(required=False),
         overwrite=dict(type='bool', required=False),
         overwrite_vars=dict(type='bool', required=False),
-        custom_virtualenv=dict(type='str', required=False),
         update_on_launch=dict(type='bool', required=False),
         update_cache_timeout=dict(type='int', required=False),
-        organization=dict(type='str'),
         state=dict(choices=['present', 'absent'], default='present'),
     )
 
@@ -246,7 +233,6 @@ def main():
     inventory = module.params.get('inventory')
     source = module.params.get('source')
     state = module.params.get('state')
-    organization = module.params.get('organization')
 
     json_output = {'inventory_source': name, 'state': state}
 
@@ -262,25 +248,11 @@ def main():
             if module.params.get('description'):
                 params['description'] = module.params.get('description')
 
-            if organization:
-                try:
-                    org_res = tower_cli.get_resource('organization')
-                    org = org_res.get(name=organization)
-                except (exc.NotFound) as excinfo:
-                    module.fail_json(
-                        msg='Failed to get organization,'
-                        'organization not found: {0}'.format(excinfo),
-                        changed=False
-                    )
-                org_id = org['id']
-            else:
-                org_id = None  # interpreted as not provided
-
             if module.params.get('credential'):
                 credential_res = tower_cli.get_resource('credential')
                 try:
                     credential = credential_res.get(
-                        name=module.params.get('credential'), organization=org_id)
+                        name=module.params.get('credential'))
                     params['credential'] = credential['id']
                 except (exc.NotFound) as excinfo:
                     module.fail_json(
@@ -293,7 +265,7 @@ def main():
                 source_project_res = tower_cli.get_resource('project')
                 try:
                     source_project = source_project_res.get(
-                        name=module.params.get('source_project'), organization=org_id)
+                        name=module.params.get('source_project'))
                     params['source_project'] = source_project['id']
                 except (exc.NotFound) as excinfo:
                     module.fail_json(
@@ -306,7 +278,7 @@ def main():
                 source_script_res = tower_cli.get_resource('inventory_script')
                 try:
                     script = source_script_res.get(
-                        name=module.params.get('source_script'), organization=org_id)
+                        name=module.params.get('source_script'))
                     params['source_script'] = script['id']
                 except (exc.NotFound) as excinfo:
                     module.fail_json(
@@ -317,7 +289,7 @@ def main():
 
             try:
                 inventory_res = tower_cli.get_resource('inventory')
-                params['inventory'] = inventory_res.get(name=inventory, organization=org_id)['id']
+                params['inventory'] = inventory_res.get(name=inventory)['id']
             except (exc.NotFound) as excinfo:
                 module.fail_json(
                     msg='Failed to update inventory source, '
@@ -325,7 +297,7 @@ def main():
                     changed=False
                 )
 
-            for key in ('source_vars', 'custom_virtualenv', 'timeout', 'source_path',
+            for key in ('source_vars', 'timeout', 'source_path',
                         'update_on_project_update', 'source_regions',
                         'instance_filters', 'group_by', 'overwrite',
                         'overwrite_vars', 'update_on_launch',

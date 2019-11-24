@@ -93,6 +93,7 @@ class SelectResourceStep extends React.Component {
                 label={selectedLabel}
                 onRemove={onRowClick}
                 selected={selectedResourceRows}
+                showOverflowAfter={5}
               />
             )}
             <PaginatedDataList

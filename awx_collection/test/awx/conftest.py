@@ -1,13 +1,9 @@
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
-
 import io
 import json
 import datetime
 import importlib
 from contextlib import redirect_stdout
 from unittest import mock
-import logging
 
 from requests.models import Response
 
@@ -15,9 +11,6 @@ import pytest
 
 from awx.main.tests.functional.conftest import _request
 from awx.main.models import Organization, Project, Inventory, Credential, CredentialType
-
-
-logger = logging.getLogger('awx.main.tests')
 
 
 def sanitize_dict(din):
@@ -41,22 +34,13 @@ def sanitize_dict(din):
 
 
 @pytest.fixture
-def run_module(request):
+def run_module():
     def rf(module_name, module_params, request_user):
 
         def new_request(self, method, url, **kwargs):
             kwargs_copy = kwargs.copy()
             if 'data' in kwargs:
                 kwargs_copy['data'] = json.loads(kwargs['data'])
-            if 'params' in kwargs and method == 'GET':
-                # query params for GET are handled a bit differently by
-                # tower-cli and python requests as opposed to REST framework APIRequestFactory
-                kwargs_copy.setdefault('data', {})
-                if isinstance(kwargs['params'], dict):
-                    kwargs_copy['data'].update(kwargs['params'])
-                elif isinstance(kwargs['params'], list):
-                    for k, v in kwargs['params']:
-                        kwargs_copy['data'][k] = v
 
             # make request
             rf = _request(method.lower())
@@ -69,13 +53,6 @@ def run_module(request):
             sanitize_dict(py_data)
             resp._content = bytes(json.dumps(django_response.data), encoding='utf8')
             resp.status_code = django_response.status_code
-
-            if request.config.getoption('verbose') > 0:
-                logger.info('{} {} by {}, code:{}'.format(
-                    method, '/api/' + url.split('/api/')[1],
-                    request_user.username, resp.status_code
-                ))
-
             return resp
 
         stdout_buffer = io.StringIO()
@@ -83,10 +60,10 @@ def run_module(request):
         # Note that a proper Ansiballz explosion of the modules will have an import path like:
         # ansible_collections.awx.awx.plugins.modules.{}
         # We should consider supporting that in the future
-        resource_module = importlib.import_module('plugins.modules.{0}'.format(module_name))
+        resource_module = importlib.import_module('plugins.modules.{}'.format(module_name))
 
         if not isinstance(module_params, dict):
-            raise RuntimeError('Module params must be dict, got {0}'.format(type(module_params)))
+            raise RuntimeError('Module params must be dict, got {}'.format(type(module_params)))
 
         # Ansible params can be passed as an invocation argument or over stdin
         # this short circuits within the AnsibleModule interface

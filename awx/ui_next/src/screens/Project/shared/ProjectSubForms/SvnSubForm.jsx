@@ -10,8 +10,8 @@ import {
 
 const SvnSubForm = ({
   i18n,
-  credential,
-  onCredentialSelection,
+  scmCredential,
+  setScmCredential,
   scmUpdateOnLaunch,
 }) => (
   <>
@@ -30,8 +30,8 @@ const SvnSubForm = ({
     />
     <BranchFormField i18n={i18n} label={i18n._(t`Revision #`)} />
     <ScmCredentialFormField
-      credential={credential}
-      onCredentialSelection={onCredentialSelection}
+      setScmCredential={setScmCredential}
+      scmCredential={scmCredential}
     />
     <ScmTypeOptions scmUpdateOnLaunch={scmUpdateOnLaunch} />
   </>

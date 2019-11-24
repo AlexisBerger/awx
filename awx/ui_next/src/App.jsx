@@ -97,13 +97,7 @@ class App extends Component {
         MeAPI.read(),
       ]);
       const {
-        data: {
-          ansible_version,
-          custom_virtualenvs,
-          project_base_dir,
-          project_local_paths,
-          version,
-        },
+        data: { ansible_version, custom_virtualenvs, version },
       } = configRes;
       const {
         data: {
@@ -111,14 +105,7 @@ class App extends Component {
         },
       } = meRes;
 
-      this.setState({
-        ansible_version,
-        custom_virtualenvs,
-        project_base_dir,
-        project_local_paths,
-        version,
-        me,
-      });
+      this.setState({ ansible_version, custom_virtualenvs, version, me });
     } catch (err) {
       this.setState({ configError: err });
     }
@@ -128,8 +115,6 @@ class App extends Component {
     const {
       ansible_version,
       custom_virtualenvs,
-      project_base_dir,
-      project_local_paths,
       isAboutModalOpen,
       isNavOpen,
       me,
@@ -184,14 +169,7 @@ class App extends Component {
       <Fragment>
         <Page usecondensed="True" header={header} sidebar={sidebar}>
           <ConfigProvider
-            value={{
-              ansible_version,
-              custom_virtualenvs,
-              project_base_dir,
-              project_local_paths,
-              me,
-              version,
-            }}
+            value={{ ansible_version, custom_virtualenvs, me, version }}
           >
             {render({ routeGroups })}
           </ConfigProvider>
